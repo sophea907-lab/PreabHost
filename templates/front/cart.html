@@ -5,96 +5,195 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart - AuraStore</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1', // Indigo
+                        secondary: '#a855f7', // Purple
+                        accent: '#f43f5e', // Rose
+                        dark: '#0f172a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        .font-display {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased">
+<body class="bg-slate-50/50 text-slate-900 min-h-screen flex flex-col antialiased relative overflow-x-hidden">
+
+    <!-- Ambient glowing backdrops -->
+    <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-200/15 rounded-full blur-[120px] -z-10 animate-pulse duration-[10000ms]"></div>
+    <div class="absolute top-1/3 right-1/4 w-[600px] h-[600px] bg-purple-200/10 rounded-full blur-[150px] -z-10"></div>
 
     <!-- Include the Navbar -->
     {% include 'front/share/navbar.html' %}
 
     <!-- Main Content -->
-    <main class="flex-1 w-full max-w-7xl mx-auto px-4 py-8">
-        <h1 class="text-4xl font-extrabold text-slate-900 mb-8">Your Cart</h1>
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-display">AuraStore Cart</span>
+                <h1 class="text-3xl md:text-4xl font-extrabold font-display text-slate-950">Your Digital Bag</h1>
+            </div>
+            <span class="text-sm font-semibold text-slate-500">{{ cart_list|length }} Premium Item(s) Selected</span>
+        </div>
 
+        {% if not cart_list %}
+        <!-- Empty Cart State -->
+        <div class="text-center py-20 bg-white/80 backdrop-blur-xl rounded-[32px] border border-slate-100 shadow-xl max-w-2xl mx-auto space-y-6">
+            <div class="w-24 h-24 bg-indigo-50 text-indigo-650 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-slate-950 font-display">Your bag is empty</h2>
+                <p class="text-slate-500 text-sm mt-1">Looks like you haven't added any products to your cart yet.</p>
+            </div>
+            <a href="/shop" class="inline-block py-3.5 px-8 font-bold rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-white transition-all duration-300 shadow-lg shadow-indigo-600/25 text-sm font-display tracking-wide">
+                Start Shopping
+            </a>
+        </div>
+        {% else %}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Cart Items -->
-            <div class="lg:col-span-2 bg-white/70 backdrop-blur-md rounded-2xl p-6 border border-white/50 shadow-sm overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200">
-                            <th class="py-4 px-4 font-semibold text-xs tracking-wider text-slate-500 uppercase">Product</th>
-                            <th class="py-4 px-4 font-semibold text-xs tracking-wider text-slate-500 uppercase">Quantity</th>
-                            <th class="py-4 px-4 font-semibold text-xs tracking-wider text-slate-500 uppercase">Price</th>
-                            <th class="py-4 px-4 font-semibold text-xs tracking-wider text-slate-500 uppercase">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b border-slate-100">
-                            <td class="py-4 px-4">
-                                <div class="flex items-center gap-4">
-                                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=200" alt="Product" class="w-16 h-16 object-cover rounded-lg bg-slate-200">
-                                    <div>
-                                        <h4 class="font-semibold text-slate-900">Premium Smart Watch</h4>
-                                        <a href="#" class="text-sm text-red-500 hover:text-red-700">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <input type="number" class="w-20 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500" value="1" min="1">
-                            </td>
-                            <td class="py-4 px-4 font-semibold text-slate-700">$299.00</td>
-                            <td class="py-4 px-4 font-bold text-indigo-600">$299.00</td>
-                        </tr>
-                        <tr>
-                            <td class="py-4 px-4">
-                                <div class="flex items-center gap-4">
-                                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=200" alt="Product" class="w-16 h-16 object-cover rounded-lg bg-slate-200">
-                                    <div>
-                                        <h4 class="font-semibold text-slate-900">Wireless Headphones</h4>
-                                        <a href="#" class="text-sm text-red-500 hover:text-red-700">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <input type="number" class="w-20 px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500" value="2" min="1">
-                            </td>
-                            <td class="py-4 px-4 font-semibold text-slate-700">$199.00</td>
-                            <td class="py-4 px-4 font-bold text-indigo-600">$398.00</td>
-                        </tr>
-                    </tbody>
-                </table>
+            
+            <!-- Left Side: Zero-Table Interactive Cart Cards -->
+            <div class="lg:col-span-2 space-y-4">
+                
+                {% for item in cart_list %}
+                <!-- Card Item -->
+                <div class="group bg-white/80 backdrop-blur-xl rounded-[24px] p-5 md:p-6 border border-slate-100/80 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-indigo-500 group-hover:bg-indigo-600 transition-colors"></div>
+                    
+                    <!-- Thumbnail container -->
+                    <div class="w-24 h-24 bg-white border border-slate-100 rounded-2xl overflow-hidden p-3 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-[1.02] transition-transform duration-300">
+                        <img src="{{ item.image }}" alt="{{ item.title }}" class="max-w-full max-h-full object-contain">
+                    </div>
+                    
+                    <!-- Information Column -->
+                    <div class="flex-1 text-center sm:text-left min-w-0">
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 font-display">{{ item.category }}</span>
+                        <h4 class="font-bold text-slate-950 text-base md:text-lg font-display hover:text-indigo-600 transition-colors leading-snug truncate mt-1">
+                            <a href="/product/{{ item.title }}">{{ item.title }}</a>
+                        </h4>
+                        <p class="text-xs font-semibold text-slate-400 mt-1 leading-relaxed line-clamp-1">In stock & eligible for free premium shipping</p>
+                        
+                        <a href="/cart/remove?product_id={{ item.id }}" class="text-xs font-extrabold text-rose-500 hover:text-rose-700 transition-colors mt-3.5 flex items-center gap-1.5 mx-auto sm:mx-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            Remove
+                        </a>
+                    </div>
+                    
+                    <!-- Interactive Counter & Price Panel -->
+                    <div class="flex flex-col sm:items-end gap-3.5 shrink-0 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                        <div class="text-xs font-bold text-slate-400 font-display text-center sm:text-right">Unit Price: ${{ "%.2f"|format(item.price) }}</div>
+                        
+                        <div class="flex items-center justify-between sm:justify-end gap-6">
+                            <!-- Custom pill quantity counter -->
+                            <div class="flex items-center bg-slate-50 border border-slate-100 rounded-xl p-1 shrink-0">
+                                <a href="/cart?product_id={{ item.id }}&qty=-1" class="w-7 h-7 rounded-lg bg-white border border-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs hover:bg-slate-100 active:scale-90 transition-all">-</a>
+                                <span class="px-3.5 text-xs font-extrabold text-slate-800 font-display">{{ item.qty }}</span>
+                                <a href="/cart?product_id={{ item.id }}&qty=1" class="w-7 h-7 rounded-lg bg-white border border-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs hover:bg-slate-100 active:scale-90 transition-all">+</a>
+                            </div>
+                            
+                            <div class="text-right">
+                                <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 font-display">Subtotal</div>
+                                <div class="text-lg md:text-xl font-black text-indigo-600 font-display">${{ "%.2f"|format(item.price * item.qty) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
             </div>
 
-            <!-- Order Summary -->
-            <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 h-fit">
-                <h3 class="text-xl font-bold text-slate-900 mb-6">Order Summary</h3>
-                <div class="flex justify-between mb-4 text-slate-600">
-                    <span>Subtotal</span>
-                    <span class="font-semibold text-slate-900">$697.00</span>
-                </div>
-                <div class="flex justify-between mb-4 text-slate-600">
-                    <span>Shipping</span>
-                    <span class="font-semibold text-slate-900">$15.00</span>
-                </div>
-                <div class="flex justify-between mb-6 text-slate-600">
-                    <span>Tax</span>
-                    <span class="font-semibold text-slate-900">$55.76</span>
-                </div>
-                <div class="flex justify-between pt-6 border-t border-slate-200">
-                    <span class="text-lg font-bold text-slate-900">Total</span>
-                    <span class="text-xl font-bold text-indigo-600">$767.76</span>
+            <!-- Right Side: Order Summary Card -->
+            {% set ns = namespace(subtotal=0) %}
+            {% for item in cart_list %}
+                {% set ns.subtotal = ns.subtotal + (item.price * item.qty) %}
+            {% endfor %}
+            {% set duty = ns.subtotal * 0.08 %}
+            {% set total = ns.subtotal + duty %}
+            
+            <div class="bg-white/80 backdrop-blur-xl p-8 rounded-[28px] border border-slate-100 shadow-xl shadow-slate-100/40 h-fit space-y-6 relative overflow-hidden group">
+                <div class="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                
+                <h3 class="text-xl font-bold text-slate-950 font-display pb-3.5 border-b border-slate-100">
+                    Order Summary
+                </h3>
+                
+                <div class="space-y-4 text-sm text-slate-600 font-medium">
+                    <div class="flex justify-between">
+                        <span>Items Tally</span>
+                        <span class="font-bold text-slate-900 font-display">${{ "%.2f"|format(ns.subtotal) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Concierge Delivery</span>
+                        <span class="font-bold text-emerald-600 font-display">FREE</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Estimated Duty (8%)</span>
+                        <span class="font-bold text-slate-900 font-display">${{ "%.2f"|format(duty) }}</span>
+                    </div>
                 </div>
                 
-                <a href="/checkout" class="block w-full text-center mt-8 py-3 px-4 font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
-                    Proceed to Checkout
+                <!-- Dotted dividers -->
+                <div class="border-t border-dashed border-slate-200 pt-5">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-display block">Total Due</span>
+                            <span class="text-2xl font-black text-slate-950 font-display">${{ "%.2f"|format(total) }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="/checkout" class="block w-full text-center py-4 px-6 font-bold rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-white transition-all duration-300 shadow-lg shadow-indigo-600/25 active:scale-[0.98] text-sm font-display tracking-wide">
+                    Proceed to Secure Checkout
                 </a>
+                
+                <div class="text-center pt-2">
+                    <span class="text-[10px] font-bold text-slate-400 flex items-center justify-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.9L10 1.154l7.834 3.746A1 1 0 0118.5 5.793V11a9.97 9.97 0 01-2.263 6.463l-5.402 4.795a1 1 0 01-1.67 0l-5.402-4.795A9.97 9.97 0 011.5 11V5.793a1 1 0 01.666-.933zM10 12a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+                        SSL Encrypted Checkout
+                    </span>
+                </div>
             </div>
+            
         </div>
+        {% endif %}
     </main>
 
     <!-- Include the Footer -->

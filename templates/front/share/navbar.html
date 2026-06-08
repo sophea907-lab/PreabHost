@@ -1,27 +1,49 @@
-<nav class="sticky top-0 z-50 w-full border-b border-white/30 bg-white/70 backdrop-blur-md shadow-sm">
+<nav class="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-xl shadow-sm shadow-slate-100/30">
     <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <a href="/" class="text-2xl font-extrabold text-primary tracking-tight">AuraStore</a>
+        <!-- Logo -->
+        <a href="/" class="text-2xl font-extrabold font-display tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent hover:opacity-90 transition-opacity">
+            PSPStore
+        </a>
 
-
-        <div class="hidden md:flex gap-8 items-center">
-            <a href="/" class="font-medium text-slate-500 hover:text-primary transition-colors">Home</a>
-            <a href="/shop" class="font-medium text-slate-500 hover:text-primary transition-colors">Shop</a>
-            <a href="/about" class="font-medium text-slate-500 hover:text-primary transition-colors">About</a>
-            <a href="/account" class="font-medium text-slate-500 hover:text-primary transition-colors">Account</a>
+        <!-- Desktop Navigation links -->
+        <div id="nav-links" class="hidden md:flex gap-8 items-center">
+            <a href="/" class="nav-link text-sm font-semibold tracking-wide transition-all duration-200 text-slate-500 hover:text-indigo-600" data-path="/">Home</a>
+            <a href="/shop" class="nav-link text-sm font-semibold tracking-wide transition-all duration-200 text-slate-500 hover:text-indigo-600" data-path="/shop">Store</a>
+            <a href="/account" class="nav-link text-sm font-semibold tracking-wide transition-all duration-200 text-slate-500 hover:text-indigo-600" data-path="/account">Account</a>
         </div>
 
-        <div class="flex items-center">
-            <a href="/cart"
-                class="relative flex items-center gap-2 font-semibold text-slate-800 hover:text-primary transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Utilities -->
+        <div class="flex items-center gap-4">
+            <a href="/cart" class="relative flex items-center gap-2 px-3 py-2 rounded-xl text-slate-800 hover:bg-slate-50 hover:text-indigo-600 transition-all duration-300 group">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:scale-105 transition-transform duration-300">
                     <circle cx="9" cy="21" r="1"></circle>
                     <circle cx="20" cy="21" r="1"></circle>
                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                 </svg>
-                <span class="hidden sm:inline">Cart</span>
-                <span class="absolute -top-2 -right-3 bg-primary text-white text-xs px-1.5 py-0.5 rounded-full">3</span>
+                <span class="hidden sm:inline text-sm font-semibold">Cart</span>
+                {% if cart_count and cart_count > 0 %}
+                <span class="absolute -top-1.5 -right-1 bg-rose-500 ring-2 ring-white text-[9px] font-extrabold h-5 w-5 rounded-full flex items-center justify-center text-white shadow-sm shadow-rose-500/20">{{ cart_count }}</span>
+                {% endif %}
             </a>
         </div>
     </div>
+
+    <!-- Active Link Highlighter Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname;
+            const links = document.querySelectorAll('#nav-links .nav-link');
+            
+            links.forEach(link => {
+                const path = link.getAttribute('data-path');
+                // Check if current page matches the link path, or is a subpath of it
+                if (currentPath === path || 
+                    (path !== '/' && currentPath.startsWith(path)) || 
+                    (path === '/shop' && currentPath.startsWith('/product'))) {
+                    link.classList.remove('text-slate-500', 'hover:text-indigo-600');
+                    link.classList.add('text-indigo-600');
+                }
+            });
+        });
+    </script>
 </nav>
