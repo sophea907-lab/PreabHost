@@ -19,9 +19,3 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-
-# Database / Instance
-instance/
-*.sqlite
-*.sqlite3
-*.db
