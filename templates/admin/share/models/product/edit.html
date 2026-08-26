@@ -1,0 +1,48 @@
+<!-- ================= EDIT PRODUCT MODAL ================= -->
+    <div id="editProductModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl w-full max-w-xl p-6 mx-4 space-y-6 shadow-2xl relative">
+            <button onclick="closeEditProductModal()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="pb-3 border-b border-slate-900">
+                <h3 class="text-lg font-bold text-slate-200 font-display">Modify Catalog Item</h3>
+                <p class="text-xs text-slate-500">Apply edits directly to the live item</p>
+            </div>
+            <form id="editProductForm" onsubmit="handleEditProduct(event)" class="space-y-4">
+                <input type="hidden" id="edit_id">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Title</label>
+                        <input type="text" id="edit_title" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Category</label>
+                        <select id="edit_category" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                            <option value="men's clothing">Men's Clothing</option>
+                            <option value="women's clothing">Women's Clothing</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="jewelery">Jewelery</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Price ($ USD)</label>
+                        <input type="number" step="0.01" id="edit_price" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Cover Image URL</label>
+                        <input type="url" id="edit_image" class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Detailed Description</label>
+                    <textarea id="edit_description" rows="3" class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"></textarea>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-3">
+                    <button type="button" onclick="closeEditProductModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-slate-200 text-xs font-bold font-display">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 font-display">Apply Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>

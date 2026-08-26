@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSP Admin Console</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#a855f7',
+                        accent: '#f43f5e',
+                        dark: '#0b0f19',
+                        cardBg: '#111827',
+                        cardBorder: '#1f2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .font-display {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+
+<body class="bg-dark text-slate-100 min-h-screen flex font-sans antialiased relative overflow-hidden">
+    <!-- Glowing background lights -->
+    <div
+        class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[150px] -z-10 animate-pulse duration-[10000ms]">
+    </div>
+    <div
+        class="absolute bottom-[-10%] right-[-10%] w-[650px] h-[650px] bg-purple-500/10 rounded-full blur-[180px] -z-10">
+    </div>
+
+    <!-- Sidebar Navigation -->
+    {% include 'admin/share/sidebar.html' %}
+
+    <!-- Main Workspace Container -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto max-h-screen">
+        <!-- Top Toolbar Header -->
+        {% include 'admin/share/header.html' %}
+
+        <!-- Main Scrolling Content Panel -->
+        <main class="flex-1 p-8 overflow-y-auto space-y-8">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function updateClock() {
+            const clockEl = document.getElementById('live-clock');
+            if (clockEl) {
+                const now = new Date();
+                clockEl.textContent = now.toLocaleTimeString();
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+
+</html>

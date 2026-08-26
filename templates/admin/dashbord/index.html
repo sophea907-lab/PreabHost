@@ -1,0 +1,112 @@
+{% extends 'admin/master.html' %}
+
+{% block content %}
+<!-- ================= OVERVIEW TAB ================= -->
+<div id="tab-dashboard" class="tab-content space-y-8">
+    <!-- Stats Dashboard Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Revenue Card -->
+        <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group shadow-md shadow-black/5 hover:-translate-y-0.5 transition-all duration-300">
+            <div class="absolute -top-6 -right-6 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
+            <div class="space-y-2">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Completed Sales</span>
+                <span id="stat-revenue" class="text-2xl font-black text-slate-100 font-display tracking-tight">$0.00</span>
+            </div>
+            <div class="w-12 h-12 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center shadow-inner">
+                <i data-lucide="banknote" class="w-6 h-6"></i>
+            </div>
+        </div>
+        <!-- Active Orders Card -->
+        <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group shadow-md shadow-black/5 hover:-translate-y-0.5 transition-all duration-300">
+            <div class="absolute -top-6 -right-6 w-24 h-24 bg-purple-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
+            <div class="space-y-2">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Active Orders</span>
+                <span id="stat-active-orders" class="text-2xl font-black text-slate-100 font-display tracking-tight">0</span>
+            </div>
+            <div class="w-12 h-12 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center shadow-inner">
+                <i data-lucide="clock" class="w-6 h-6"></i>
+            </div>
+        </div>
+        <!-- Total Products Card -->
+        <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group shadow-md shadow-black/5 hover:-translate-y-0.5 transition-all duration-300">
+            <div class="absolute -top-6 -right-6 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
+            <div class="space-y-2">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Products Stock</span>
+                <span id="stat-products" class="text-2xl font-black text-slate-100 font-display tracking-tight">0</span>
+            </div>
+            <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shadow-inner">
+                <i data-lucide="package" class="w-6 h-6"></i>
+            </div>
+        </div>
+        <!-- Customer Satisfaction Card -->
+        <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group shadow-md shadow-black/5 hover:-translate-y-0.5 transition-all duration-300">
+            <div class="absolute -top-6 -right-6 w-24 h-24 bg-rose-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
+            <div class="space-y-2">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Avg Catalog Rating</span>
+                <span id="stat-rating" class="text-2xl font-black text-slate-100 font-display tracking-tight flex items-center gap-1.5">0.0 <span class="text-xs text-amber-500">★</span></span>
+            </div>
+            <div class="w-12 h-12 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl flex items-center justify-center shadow-inner">
+                <i data-lucide="award" class="w-6 h-6"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Container -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Sales Timeline Chart -->
+        <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 lg:col-span-2 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-200 font-display">Sales Revenue Performance</h3>
+                    <p class="text-[10px] text-slate-500">Reviewing completed order margins</p>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 uppercase tracking-wider border border-indigo-500/20">Line Chart</span>
+            </div>
+            <div class="h-80 w-full relative">
+                <canvas id="salesTimelineChart"></canvas>
+            </div>
+        </div>
+        <!-- Product Category Doughnut Chart -->
+        <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-200 font-display">Stock Category Mix</h3>
+                    <p class="text-[10px] text-slate-500">Percentage distribution of products</p>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 uppercase tracking-wider border border-purple-500/20">Doughnut</span>
+            </div>
+            <div class="h-80 w-full relative flex items-center justify-center">
+                <canvas id="categoryDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity/Recent Orders -->
+    <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-sm font-bold text-slate-200 font-display">Recent Order Activity</h3>
+                <p class="text-[10px] text-slate-500">Review the status of the latest orders</p>
+            </div>
+            <a href="/admin/orders" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">Manage All</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+                        <th class="py-3 px-4">Order ID</th>
+                        <th class="py-3 px-4">Customer</th>
+                        <th class="py-3 px-4">Date</th>
+                        <th class="py-3 px-4">Total</th>
+                        <th class="py-3 px-4">Items Count</th>
+                        <th class="py-3 px-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="recentOrdersTableBody" class="divide-y divide-slate-800/40 text-slate-300">
+                    <!-- Rendered via Javascript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+<!-- ================= ADD PRODUCT MODAL ================= -->
+    <div id="addProductModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl w-full max-w-xl p-6 mx-4 space-y-6 shadow-2xl relative">
+            <button onclick="closeAddProductModal()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="pb-3 border-b border-slate-900">
+                <h3 class="text-lg font-bold text-slate-200 font-display">Create Catalog Item</h3>
+                <p class="text-xs text-slate-500">Injects a product directly into storefront</p>
+            </div>
+            <form onsubmit="handleAddProduct(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Title</label>
+                        <input type="text" id="add_title" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="e.g. Designer Running Shoes">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Category</label>
+                        <select id="add_category" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                            <option value="men's clothing">Men's Clothing</option>
+                            <option value="women's clothing">Women's Clothing</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="jewelery">Jewelery</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Price ($ USD)</label>
+                        <input type="number" step="0.01" id="add_price" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="e.g. 89.99">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Cover Image URL</label>
+                        <input type="url" id="add_image" class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="https://image-link.png">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Detailed Description</label>
+                    <textarea id="add_description" rows="3" class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="Add rich details explaining specifications..."></textarea>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-3">
+                    <button type="button" onclick="closeAddProductModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-slate-200 text-xs font-bold font-display">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 font-display">Submit Item</button>
+                </div>
+            </form>
+        </div>
+    </div>

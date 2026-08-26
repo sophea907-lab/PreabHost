@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraStore Admin Console</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1', // Indigo
+                        secondary: '#a855f7', // Purple
+                        accent: '#f43f5e', // Rose
+                        dark: '#0b0f19', // Sleek cyber-dark
+                        cardBg: '#111827', // Charcoal gray
+                        cardBorder: '#1f2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .font-display {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+
+<body class="bg-dark text-slate-100 min-h-screen flex font-sans antialiased relative overflow-hidden">
+
+    <!-- Glowing background lights -->
+    <div class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[150px] -z-10 animate-pulse duration-[10000ms]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[650px] h-[650px] bg-purple-500/10 rounded-full blur-[180px] -z-10"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-950/60 backdrop-blur-xl border-r border-slate-900 flex flex-col shrink-0">
+        <!-- Logo -->
+        <div class="p-6 border-b border-slate-900/60 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+                <span class="text-sm font-bold tracking-wider text-slate-200 font-display block uppercase">AuraStore</span>
+                <span class="text-[9px] font-semibold text-indigo-400/80 tracking-widest uppercase">Admin Terminal</span>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 px-4 py-6 space-y-1.5">
+            <button onclick="switchTab('dashboard')" data-tab="dashboard" class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                <span>Overview</span>
+            </button>
+            <button onclick="switchTab('products')" data-tab="products" class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200">
+                <i data-lucide="package" class="w-4 h-4"></i>
+                <span>Products CRUD</span>
+            </button>
+            <button onclick="switchTab('orders')" data-tab="orders" class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                <span>Order Center</span>
+            </button>
+            <button onclick="switchTab('users')" data-tab="users" class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200">
+                <i data-lucide="users" class="w-4 h-4"></i>
+                <span>User Directory</span>
+            </button>
+        </nav>
+
+        <!-- User Profile Card -->
+        <div class="p-4 border-t border-slate-900/60 bg-slate-950/20 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-indigo-600/30 border border-indigo-500/20 flex items-center justify-center font-bold text-indigo-400 font-display text-sm">
+                SP
+            </div>
+            <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold text-slate-200 truncate font-display">Sophea Preab</p>
+                <p class="text-[9px] text-slate-500 font-semibold truncate uppercase tracking-wider">Super Administrator</p>
+            </div>
+            <a href="/" class="text-slate-500 hover:text-slate-300 transition-colors p-1.5 rounded-lg hover:bg-slate-900" title="Go to Storefront">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Workspace Container -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto max-h-screen">
+        <!-- Top Toolbar Header -->
+        <header class="h-16 border-b border-slate-900/60 bg-dark/40 backdrop-blur-md px-8 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2.5">
+                <h1 id="page-title" class="text-lg font-bold font-display text-slate-200">Admin Dashboard</h1>
+                <span class="px-2 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 tracking-wide uppercase">Active Session</span>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden md:block">
+                    <p id="live-clock" class="text-xs font-bold text-slate-400 font-display">--:--:--</p>
+                    <p class="text-[9px] text-slate-600 font-semibold uppercase tracking-wider">Server Local Time</p>
+                </div>
+                <div class="w-px h-6 bg-slate-900"></div>
+                <a href="/" class="px-4 py-1.5 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs font-bold hover:bg-slate-800/80 hover:text-white transition-all flex items-center gap-1.5 font-display">
+                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    <span>Store View</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Scrolling Dashboard Panels -->
+        <main class="flex-1 p-8 overflow-y-auto space-y-8">
+
+            <!-- ================= OVERVIEW TAB ================= -->
+            <div id="tab-dashboard" class="tab-content space-y-8 hidden">
+                <!-- Stats Dashboard Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Total Revenue Card -->
+                    <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group shadow-md shadow-black/5 hover:-translate-y-0.5 transition-all duration-300">
+                        <div class="absolute -top-6 -right-6 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Completed Sales</span>
+                            <span id="stat-revenue" class="text-2xl font-black text-slate-100 font-display tracking-tight">$0.00</span>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center shadow-inner">
+                            <i data-lucide="banknote" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <!-- Active Orders Card -->
+                    <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group shadow-md shadow-black/5 hover:-translate-y-0.5 transition-all duration-300">
+                        <div class="absolute -top-6 -right-6 w-24 h-24 bg-purple-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Active Orders</span>
+                            <span id="stat-active-orders" class="text-2xl font-black text-slate-100 font-display tracking-tight">0</span>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center shadow-inner">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <!-- Total Products Card -->
+                    <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group shadow-md shadow-black/5 hover:-translate-y-0.5 transition-all duration-300">
+                        <div class="absolute -top-6 -right-6 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Products Stock</span>
+                            <span id="stat-products" class="text-2xl font-black text-slate-100 font-display tracking-tight">0</span>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shadow-inner">
+                            <i data-lucide="package" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <!-- Customer Satisfaction Card -->
+                    <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group shadow-md shadow-black/5 hover:-translate-y-0.5 transition-all duration-300">
+                        <div class="absolute -top-6 -right-6 w-24 h-24 bg-rose-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Avg Catalog Rating</span>
+                            <span id="stat-rating" class="text-2xl font-black text-slate-100 font-display tracking-tight flex items-center gap-1.5">0.0 <span class="text-xs text-amber-500">★</span></span>
+                        </div>
+                        <div class="w-12 h-12 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl flex items-center justify-center shadow-inner">
+                            <i data-lucide="award" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Container -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Sales Timeline Chart -->
+                    <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 lg:col-span-2 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-200 font-display">Sales Revenue Performance</h3>
+                                <p class="text-[10px] text-slate-500">Reviewing completed order margins</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 uppercase tracking-wider border border-indigo-500/20">Line Chart</span>
+                        </div>
+                        <div class="h-80 w-full relative">
+                            <canvas id="salesTimelineChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Product Category Doughnut Chart -->
+                    <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-200 font-display">Stock Category Mix</h3>
+                                <p class="text-[10px] text-slate-500">Percentage distribution of products</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 uppercase tracking-wider border border-purple-500/20">Doughnut</span>
+                        </div>
+                        <div class="h-80 w-full relative flex items-center justify-center">
+                            <canvas id="categoryDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity/Recent Orders -->
+                <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-200 font-display">Recent Order Activity</h3>
+                            <p class="text-[10px] text-slate-500">Review the status of the latest orders</p>
+                        </div>
+                        <button onclick="switchTab('orders')" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">Manage All</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+                                    <th class="py-3 px-4">Order ID</th>
+                                    <th class="py-3 px-4">Customer</th>
+                                    <th class="py-3 px-4">Date</th>
+                                    <th class="py-3 px-4">Total</th>
+                                    <th class="py-3 px-4">Items Count</th>
+                                    <th class="py-3 px-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentOrdersTableBody" class="divide-y divide-slate-800/40 text-slate-300">
+                                <!-- Rendered via Javascript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PRODUCTS CRUD TAB ================= -->
+            <div id="tab-products" class="tab-content space-y-6 hidden">
+                <!-- Toolbar Area -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-cardBg border border-cardBorder p-4 rounded-2xl">
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <div class="relative w-full max-w-sm">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 pointer-events-none">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                            </span>
+                            <input type="text" id="productSearch" oninput="filterProducts()" class="w-full pl-10 pr-4 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="Search catalog by name or category...">
+                        </div>
+                        <select id="productCatFilter" onchange="filterProducts()" class="px-4 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-400 focus:outline-none">
+                            <option value="ALL">All Categories</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="jewelery">Jewelery</option>
+                            <option value="men's clothing">Men's Clothing</option>
+                            <option value="women's clothing">Women's Clothing</option>
+                        </select>
+                    </div>
+                    <button onclick="openAddProductModal()" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-indigo-600/20 hover:scale-[1.01] transition-all flex items-center gap-1.5 self-start sm:self-auto font-display">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Add New Product</span>
+                    </button>
+                </div>
+
+                <!-- Products Table -->
+                <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl shadow-black/10">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-950/45 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+                                    <th class="py-3 px-6 w-16">ID</th>
+                                    <th class="py-3 px-6 w-16">Visual</th>
+                                    <th class="py-3 px-6">Product Title</th>
+                                    <th class="py-3 px-6">Category</th>
+                                    <th class="py-3 px-6">Price</th>
+                                    <th class="py-3 px-6">Rating</th>
+                                    <th class="py-3 px-6 text-center w-28">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody" class="divide-y divide-slate-800/40 text-slate-300">
+                                <!-- Rendered via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= ORDER CENTER TAB ================= -->
+            <div id="tab-orders" class="tab-content space-y-6 hidden">
+                <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-950/45 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+                                    <th class="py-4 px-6 w-16">ID</th>
+                                    <th class="py-4 px-6">Buyer Details</th>
+                                    <th class="py-4 px-6">Delivery Destination</th>
+                                    <th class="py-4 px-6">Purchased Items</th>
+                                    <th class="py-4 px-6">Financials</th>
+                                    <th class="py-4 px-6 w-36">Status Controls</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody" class="divide-y divide-slate-800/40 text-slate-300">
+                                <!-- Rendered via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= USER DIRECTORY TAB ================= -->
+            <div id="tab-users" class="tab-content space-y-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left: Users table list -->
+                    <div class="lg:col-span-2 bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-950/45 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+                                        <th class="py-3 px-6">Identifier</th>
+                                        <th class="py-3 px-6">Email Address</th>
+                                        <th class="py-3 px-6">Assigned Role</th>
+                                        <th class="py-3 px-6">Registered Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody" class="divide-y divide-slate-800/40 text-slate-300">
+                                    <!-- Rendered via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right: Add User widget -->
+                    <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 h-fit space-y-4">
+                        <div class="pb-3.5 border-b border-slate-900">
+                            <h3 class="text-sm font-bold text-slate-200 font-display">Register Admin/User</h3>
+                            <p class="text-[10px] text-slate-500">Inject dynamic profile cards into user logs</p>
+                        </div>
+                        <form id="addUserForm" onsubmit="handleAddUser(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Full Account Name</label>
+                                <input type="text" id="user_name" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="e.g. Sophea Admin">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Email Address</label>
+                                <input type="email" id="user_email" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="e.g. admin@aurastore.com">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">System Permission Role</label>
+                                <select id="user_role" class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                                    <option value="Customer">Standard Customer</option>
+                                    <option value="Administrator">Administrator Privileges</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full text-center py-3 px-4 bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:bg-indigo-600 hover:border-indigo-500 text-xs font-bold rounded-xl transition-all font-display uppercase tracking-wider">
+                                Save Profile Card
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================= ADD PRODUCT MODAL ================= -->
+    <div id="addProductModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl w-full max-w-xl p-6 mx-4 space-y-6 shadow-2xl relative">
+            <button onclick="closeAddProductModal()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="pb-3 border-b border-slate-900">
+                <h3 class="text-lg font-bold text-slate-200 font-display">Create Catalog Item</h3>
+                <p class="text-xs text-slate-500">Injects a product directly into storefront</p>
+            </div>
+            <form onsubmit="handleAddProduct(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Title</label>
+                        <input type="text" id="add_title" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="e.g. Designer Running Shoes">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Category</label>
+                        <select id="add_category" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                            <option value="men's clothing">Men's Clothing</option>
+                            <option value="women's clothing">Women's Clothing</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="jewelery">Jewelery</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Price ($ USD)</label>
+                        <input type="number" step="0.01" id="add_price" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="e.g. 89.99">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Cover Image URL</label>
+                        <input type="url" id="add_image" class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="https://image-link.png">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Detailed Description</label>
+                    <textarea id="add_description" rows="3" class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="Add rich details explaining specifications..."></textarea>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-3">
+                    <button type="button" onclick="closeAddProductModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-slate-200 text-xs font-bold font-display">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 font-display">Submit Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= EDIT PRODUCT MODAL ================= -->
+    <div id="editProductModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl w-full max-w-xl p-6 mx-4 space-y-6 shadow-2xl relative">
+            <button onclick="closeEditProductModal()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="pb-3 border-b border-slate-900">
+                <h3 class="text-lg font-bold text-slate-200 font-display">Modify Catalog Item</h3>
+                <p class="text-xs text-slate-500">Apply edits directly to the live item</p>
+            </div>
+            <form id="editProductForm" onsubmit="handleEditProduct(event)" class="space-y-4">
+                <input type="hidden" id="edit_id">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Title</label>
+                        <input type="text" id="edit_title" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Category</label>
+                        <select id="edit_category" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                            <option value="men's clothing">Men's Clothing</option>
+                            <option value="women's clothing">Women's Clothing</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="jewelery">Jewelery</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Price ($ USD)</label>
+                        <input type="number" step="0.01" id="edit_price" required class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Cover Image URL</label>
+                        <input type="url" id="edit_image" class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-display">Detailed Description</label>
+                    <textarea id="edit_description" rows="3" class="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"></textarea>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-3">
+                    <button type="button" onclick="closeEditProductModal()" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-slate-200 text-xs font-bold font-display">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 font-display">Apply Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Page Scripts and Core Logic -->
+    <script>
+        // ---------------- STATIC DATA STORAGE ----------------
+        let products = [
+            {
+                "id": 1,
+                "title": "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+                "price": 109.95,
+                "description": "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday",
+                "category": "men's clothing",
+                "image": "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png",
+                "rating": { "rate": 3.9, "count": 120 }
+            },
+            {
+                "id": 2,
+                "title": "Mens Casual Premium Slim Fit T-Shirts ",
+                "price": 22.3,
+                "description": "Slim-fitting style, contrast raglan long sleeve, three-button henley placket, light weight & soft fabric.",
+                "category": "men's clothing",
+                "image": "https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_t.png",
+                "rating": { "rate": 4.1, "count": 259 }
+            },
+            {
+                "id": 3,
+                "title": "Mens Cotton Jacket",
+                "price": 55.99,
+                "description": "great outerwear jackets for Spring/Autumn/Winter, suitable for many occasions.",
+                "category": "men's clothing",
+                "image": "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_t.png",
+                "rating": { "rate": 4.7, "count": 500 }
+            },
+            {
+                "id": 5,
+                "title": "John Hardy Women's Legends Naga Gold & Silver Station Chain Bracelet",
+                "price": 695.00,
+                "description": "From our Legends Collection, the Naga was inspired by the mythical water dragon.",
+                "category": "jewelery",
+                "image": "https://fakestoreapi.com/img/71pWzhdJNwL._AC_UL640_QL65_ML3_t.png",
+                "rating": { "rate": 4.6, "count": 400 }
+            },
+            {
+                "id": 9,
+                "title": "WD 2TB Elements Portable External Hard Drive - USB 3.0 ",
+                "price": 64.00,
+                "description": "USB 3.0 and USB 2.0 Compatibility Fast data transfers Improve PC Performance.",
+                "category": "electronics",
+                "image": "https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_t.png",
+                "rating": { "rate": 3.3, "count": 203 }
+            },
+            {
+                "id": 15,
+                "title": "BIYLACLESEN Women's 3-in-1 Snowboard Jacket Winter Coats",
+                "price": 56.99,
+                "description": "Note:The Jackets is US standard size, Please choose size as your usual wear.",
+                "category": "women's clothing",
+                "image": "https://fakestoreapi.com/img/51Y5NI-I5jL._AC_UX679_t.png",
+                "rating": { "rate": 2.6, "count": 235 }
+            }
+        ];
+
+        let orders = [
+            {
+                "id": 1,
+                "customer_name": "Sophea Preab",
+                "email": "sophea@example.com",
+                "address": "123 Main St, Phnom Penh, 12000",
+                "items": [
+                    { "id": 1, "title": "Fjallraven - Foldsack No. 1 Backpack", "qty": 1, "price": 109.95, "image": "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png" }
+                ],
+                "subtotal": 109.95,
+                "shipping": 15.0,
+                "tax": 8.80,
+                "total": 133.75,
+                "status": "Completed",
+                "date": "2026-07-14"
+            },
+            {
+                "id": 2,
+                "customer_name": "Alice Johnson",
+                "email": "alice@example.com",
+                "address": "456 Oak Ave, Seattle, 98101",
+                "items": [
+                    { "id": 5, "title": "John Hardy Women's Bracelet", "qty": 1, "price": 695.0, "image": "https://fakestoreapi.com/img/71pWzhdJNwL._AC_UL640_QL65_ML3_t.png" }
+                ],
+                "subtotal": 695.0,
+                "shipping": 15.0,
+                "tax": 55.6,
+                "total": 765.6,
+                "status": "Pending",
+                "date": "2026-07-15"
+            }
+        ];
+
+        let users = [
+            { "id": 1, "name": "Sophea Preab", "email": "sophea@example.com", "role": "Administrator", "date": "2026-01-10" },
+            { "id": 2, "name": "Alice Johnson", "email": "alice@example.com", "role": "Customer", "date": "2026-03-22" },
+            { "id": 3, "name": "Bob Smith", "email": "bob@example.com", "role": "Customer", "date": "2026-04-05" }
+        ];
+
+        // ---------------- CHART INSTANCES ----------------
+        let timelineChart = null;
+        let doughnutChart = null;
+
+        // ---------------- RENDERING LOGIC ----------------
+        function renderAll() {
+            renderStats();
+            renderRecentOrders();
+            renderProducts();
+            renderOrders();
+            renderUsers();
+            renderCharts();
+            lucide.createIcons();
+        }
+
+        function renderStats() {
+            const completedRevenue = orders
+                .filter(o => o.status.toLowerCase() === 'completed')
+                .reduce((sum, o) => sum + o.total, 0);
+            
+            const activeCount = orders.filter(o => o.status.toLowerCase() === 'pending' || o.status.toLowerCase() === 'shipped').length;
+            const productCount = products.length;
+            const ratesSum = products.reduce((sum, p) => sum + p.rating.rate, 0);
+            const avgRating = productCount > 0 ? (ratesSum / productCount).toFixed(2) : "0.0";
+
+            document.getElementById('stat-revenue').innerText = `$${completedRevenue.toFixed(2)}`;
+            document.getElementById('stat-active-orders').innerText = `${activeCount} / ${orders.length} total`;
+            document.getElementById('stat-products').innerText = productCount;
+            document.getElementById('stat-rating').innerHTML = `${avgRating} <span class="text-xs text-amber-500 font-sans">★</span>`;
+        }
+
+        function renderRecentOrders() {
+            const tbody = document.getElementById('recentOrdersTableBody');
+            tbody.innerHTML = '';
+            // Get last 5 orders reversed
+            const recent = [...orders].slice(-5).reverse();
+            recent.forEach(order => {
+                const statusBadgeClass = getStatusBadgeClass(order.status);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold font-display text-slate-200">#${order.id}</td>
+                    <td class="py-3 px-4 font-medium">${order.customer_name}</td>
+                    <td class="py-3 px-4 font-medium text-slate-500">${order.date}</td>
+                    <td class="py-3 px-4 font-extrabold text-slate-200 font-display">$${order.total.toFixed(2)}</td>
+                    <td class="py-3 px-4 font-bold">${order.items.length}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold tracking-wide uppercase border ${statusBadgeClass}">
+                            ${order.status}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = '';
+            products.forEach(product => {
+                const tr = document.createElement('tr');
+                tr.className = 'product-row hover:bg-slate-900/10 transition-colors';
+                tr.setAttribute('data-title', product.title.toLowerCase());
+                tr.setAttribute('data-category', product.category.toLowerCase());
+                tr.innerHTML = `
+                    <td class="py-4 px-6 font-bold font-display text-slate-500">#${product.id}</td>
+                    <td class="py-4 px-6">
+                        <div class="w-10 h-10 rounded-xl bg-white border border-slate-800 p-1 flex items-center justify-center shadow-inner shrink-0 overflow-hidden">
+                            <img src="${product.image}" alt="Cover" class="max-w-full max-h-full object-contain">
+                        </div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="max-w-md font-bold text-slate-200 truncate font-display" title="${product.title}">${product.title}</div>
+                        <div class="max-w-xs text-[10px] text-slate-500 truncate" title="${product.description}">${product.description}</div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <span class="px-2 py-0.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800/50 text-[10px] font-semibold tracking-wide uppercase">
+                            ${product.category}
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 font-extrabold text-slate-100 font-display">$${product.price.toFixed(2)}</td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-1">
+                            <span class="text-amber-500 font-bold font-display">${product.rating.rate}</span>
+                            <span class="text-slate-500 text-[10px]">(${product.rating.count} orders)</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick='openEditProductModal(${JSON.stringify(product).replace(/'/g, "&apos;")})' class="p-2 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 rounded-xl transition-all" title="Edit Product">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="handleDeleteProduct(${product.id})" class="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition-all" title="Delete Product">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            [...orders].reverse().forEach(order => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-900/10 transition-colors';
+                
+                let itemsListHtml = '';
+                order.items.forEach(item => {
+                    itemsListHtml += `
+                        <div class="flex items-center gap-2 text-[11px]">
+                            <span class="w-4 h-4 rounded bg-slate-900 text-slate-400 flex items-center justify-center text-[9px] font-black shrink-0">${item.qty}</span>
+                            <span class="text-slate-300 truncate" title="${item.title}">${item.title}</span>
+                        </div>
+                    `;
+                });
+
+                tr.innerHTML = `
+                    <td class="py-4 px-6 font-bold font-display text-slate-200">#${order.id}</td>
+                    <td class="py-4 px-6">
+                        <div class="font-bold text-slate-200 font-display">${order.customer_name}</div>
+                        <div class="text-[10px] text-slate-500 font-medium">${order.email}</div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="max-w-xs text-slate-400 truncate" title="${order.address}">${order.address}</div>
+                        <div class="text-[9px] text-slate-600 font-bold">${order.date}</div>
+                    </td>
+                    <td class="py-4 px-6 font-sans">
+                        <div class="space-y-1 max-w-sm">
+                            ${itemsListHtml}
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 font-sans">
+                        <div class="font-black text-slate-200 font-display">$${order.total.toFixed(2)}</div>
+                        <div class="text-[9px] text-slate-500">Tax Included</div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-1.5 font-sans">
+                            <select onchange="updateOrderStatus(${order.id}, this.value)" class="px-2.5 py-1.5 text-[10px] font-bold rounded-lg bg-slate-950 border border-slate-800 text-slate-300 focus:outline-none focus:border-indigo-500">
+                                <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                                <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                            </select>
+                            <span class="w-2.5 h-2.5 rounded-full shrink-0 ${getStatusColorDot(order.status)}"></span>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-900/10 transition-colors';
+                const roleClass = user.role.toLowerCase() === 'administrator' 
+                    ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' 
+                    : 'bg-slate-900 text-slate-400 border-slate-800';
+
+                tr.innerHTML = `
+                    <td class="py-4 px-6 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-slate-900 text-indigo-400 border border-slate-800/80 flex items-center justify-center font-bold text-xs uppercase font-display">
+                            ${user.name.slice(0, 2)}
+                        </div>
+                        <div class="font-bold text-slate-200 font-display">${user.name}</div>
+                    </td>
+                    <td class="py-4 px-6 text-slate-400 font-medium">${user.email}</td>
+                    <td class="py-4 px-6">
+                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${roleClass}">
+                            ${user.role}
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-slate-500 font-medium">${user.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getStatusBadgeClass(status) {
+            status = status.toLowerCase();
+            if (status === 'completed') return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+            if (status === 'shipped') return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
+            return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+        }
+
+        function getStatusColorDot(status) {
+            status = status.toLowerCase();
+            if (status === 'completed') return 'bg-emerald-500';
+            if (status === 'shipped') return 'bg-indigo-500';
+            return 'bg-amber-500';
+        }
+
+        // ---------------- CLIENT SIDE CRUD SIMULATION ----------------
+        function handleAddProduct(event) {
+            event.preventDefault();
+            const title = document.getElementById('add_title').value;
+            const category = document.getElementById('add_category').value;
+            const price = parseFloat(document.getElementById('add_price').value);
+            const image = document.getElementById('add_image').value || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500';
+            const description = document.getElementById('add_description').value || '';
+
+            const nextId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            
+            const newProduct = {
+                id: nextId,
+                title,
+                category,
+                price,
+                image,
+                description,
+                rating: { rate: 5.0, count: 1 }
+            };
+
+            products.push(newProduct);
+            closeAddProductModal();
+            renderAll();
+            // Reset form
+            event.target.reset();
+        }
+
+        function handleEditProduct(event) {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('edit_id').value);
+            const title = document.getElementById('edit_title').value;
+            const category = document.getElementById('edit_category').value;
+            const price = parseFloat(document.getElementById('edit_price').value);
+            const image = document.getElementById('edit_image').value;
+            const description = document.getElementById('edit_description').value;
+
+            const product = products.find(p => p.id === id);
+            if (product) {
+                product.title = title;
+                product.category = category;
+                product.price = price;
+                if (image) product.image = image;
+                product.description = description;
+            }
+
+            closeEditProductModal();
+            renderAll();
+        }
+
+        function handleDeleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                products = products.filter(p => p.id !== id);
+                renderAll();
+            }
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = newStatus;
+                renderAll();
+            }
+        }
+
+        function handleAddUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('user_name').value;
+            const email = document.getElementById('user_email').value;
+            const role = document.getElementById('user_role').value;
+            const date = new Date().toISOString().split('T')[0];
+
+            const nextId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+            users.push({ id: nextId, name, email, role, date });
+            renderAll();
+            event.target.reset();
+        }
+
+        // ---------------- DYNAMIC TAB SWITCHING ----------------
+        const tabTitles = {
+            'dashboard': 'Admin Dashboard',
+            'products': 'Product Management (CRUD)',
+            'orders': 'Order Management Center',
+            'users': 'User Account Registry'
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) targetTab.classList.remove('hidden');
+
+            document.querySelectorAll('.sidebar-nav-item').forEach(el => {
+                if (el.getAttribute('data-tab') === tabId) {
+                    el.classList.add('bg-indigo-600/10', 'text-indigo-400', 'border-l-4', 'border-indigo-500');
+                    el.classList.remove('text-slate-400', 'hover:bg-slate-800/50', 'hover:text-slate-200');
+                } else {
+                    el.classList.remove('bg-indigo-600/10', 'text-indigo-400', 'border-l-4', 'border-indigo-500');
+                    el.classList.add('text-slate-400', 'hover:bg-slate-800/50', 'hover:text-slate-200');
+                }
+            });
+
+            document.getElementById('page-title').innerText = tabTitles[tabId] || 'Admin Console';
+
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabId);
+            window.history.pushState({}, '', url);
+        }
+
+        // Initialize state on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeTab = urlParams.get('tab') || 'dashboard';
+            switchTab(activeTab);
+            renderAll();
+        });
+
+        // ---------------- PRODUCTS CLIENT SEARCH ----------------
+        function filterProducts() {
+            const searchQuery = document.getElementById('productSearch').value.toLowerCase().trim();
+            const filterCat = document.getElementById('productCatFilter').value.toLowerCase();
+            const rows = document.querySelectorAll('.product-row');
+
+            rows.forEach(row => {
+                const title = row.getAttribute('data-title');
+                const category = row.getAttribute('data-category');
+
+                const matchesSearch = title.includes(searchQuery) || category.includes(searchQuery);
+                const matchesCat = (filterCat === 'all') || (category === filterCat);
+
+                if (matchesSearch && matchesCat) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
+        // ---------------- PRODUCT MODAL LOGIC ----------------
+        function openAddProductModal() {
+            document.getElementById('addProductModal').classList.remove('hidden');
+        }
+
+        function closeAddProductModal() {
+            document.getElementById('addProductModal').classList.add('hidden');
+        }
+
+        function openEditProductModal(product) {
+            document.getElementById('edit_id').value = product.id;
+            document.getElementById('edit_title').value = product.title;
+            document.getElementById('edit_price').value = product.price;
+            document.getElementById('edit_category').value = product.category;
+            document.getElementById('edit_image').value = product.image || '';
+            document.getElementById('edit_description').value = product.description || '';
+            document.getElementById('editProductModal').classList.remove('hidden');
+        }
+
+        function closeEditProductModal() {
+            document.getElementById('editProductModal').classList.add('hidden');
+        }
+
+        // ---------------- CLOCK COMPONENT ----------------
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+            const liveClock = document.getElementById('live-clock');
+            if (liveClock) liveClock.innerText = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ---------------- CHART RENDERING LOGIC ----------------
+        function renderCharts() {
+            // Recalculate categories values
+            const categoryCounts = {};
+            products.forEach(p => {
+                categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1;
+            });
+            const chartCategories = Object.keys(categoryCounts);
+            const chartCategoryValues = Object.values(categoryCounts);
+
+            // Timeline sales
+            const chartDates = ["2026-07-11", "2026-07-12", "2026-07-13", "2026-07-14", "2026-07-15"];
+            const completedOrders = orders.filter(o => o.status.toLowerCase() === 'completed');
+            const chartSalesValues = [120.00, 150.00, 85.00, 0, 0];
+            
+            // Map actual completed orders totals to dates
+            chartDates.forEach((date, index) => {
+                const totalForDay = completedOrders
+                    .filter(o => o.date === date)
+                    .reduce((sum, o) => sum + o.total, 0);
+                if (totalForDay > 0) {
+                    chartSalesValues[index] = totalForDay;
+                } else if (index >= 3) {
+                    chartSalesValues[index] = index === 3 ? 133.75 : 0; // retain some seeding
+                }
+            });
+
+            // Destroy previous charts if they exist to prevent memory leak/glitch
+            if (timelineChart) timelineChart.destroy();
+            if (doughnutChart) doughnutChart.destroy();
+
+            try {
+                const timelineCtx = document.getElementById('salesTimelineChart').getContext('2d');
+                const purpleGradient = timelineCtx.createLinearGradient(0, 0, 0, 300);
+                purpleGradient.addColorStop(0, 'rgba(99, 102, 241, 0.3)');
+                purpleGradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+                timelineChart = new Chart(timelineCtx, {
+                    type: 'line',
+                    data: {
+                        labels: chartDates,
+                        datasets: [{
+                            label: 'Total Revenue ($)',
+                            data: chartSalesValues,
+                            borderColor: '#6366f1',
+                            borderWidth: 3,
+                            backgroundColor: purpleGradient,
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#a855f7',
+                            pointBorderColor: '#fff',
+                            pointHoverRadius: 7
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                grid: { color: 'rgba(31, 41, 55, 0.5)' },
+                                ticks: { color: '#94a3b8', font: { size: 10 } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#94a3b8', font: { size: 10 } }
+                            }
+                        }
+                    }
+                });
+
+                const doughnutCtx = document.getElementById('categoryDistributionChart').getContext('2d');
+                doughnutChart = new Chart(doughnutCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: chartCategories,
+                        datasets: [{
+                            data: chartCategoryValues,
+                            backgroundColor: [
+                                'rgba(99, 102, 241, 0.8)',
+                                'rgba(168, 85, 247, 0.8)',
+                                'rgba(244, 63, 94, 0.8)',
+                                'rgba(16, 185, 129, 0.8)'
+                            ],
+                            borderColor: '#111827',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#cbd5e1',
+                                    boxWidth: 10,
+                                    boxHeight: 10,
+                                    padding: 15,
+                                    font: { size: 9 }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("Chart loading failed:", e);
+            }
+        }
+    </script>
+</body>
+
+</html>
