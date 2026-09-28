@@ -1,0 +1,100 @@
+{% extends 'admin/master.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Breadcrumb & Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center gap-2 text-xs text-slate-500 font-semibold mb-1">
+                <a href="/admin/products" class="hover:text-indigo-400 transition-colors">Products</a>
+                <span>/</span>
+                <span class="text-slate-300">Create SKU</span>
+            </div>
+            <h1 class="text-xl font-black text-slate-100 font-display">Create New Product</h1>
+        </div>
+        <a href="/admin/products" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-800">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Products</span>
+        </a>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 md:p-8 shadow-xl">
+        <form action="/admin/products/create" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Name -->
+                <div class="md:col-span-2">
+                    <label for="name" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 font-display">Product Name <span class="text-rose-500">*</span></label>
+                    <input type="text" id="name" name="name" required placeholder="e.g. Ultra Slim Mechanical Keyboard" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label for="CategoryId" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 font-display">Category <span class="text-rose-500">*</span></label>
+                    <select id="CategoryId" name="CategoryId" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                        <option value="" disabled selected>Select a Category...</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Stock Quantity -->
+                <div>
+                    <label for="Stock" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 font-display">Stock Units <span class="text-rose-500">*</span></label>
+                    <input type="number" id="Stock" name="Stock" value="50" min="0" required class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                </div>
+
+                <!-- Cost -->
+                <div>
+                    <label for="Cost" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 font-display">Cost Price ($)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 text-sm">$</span>
+                        <input type="number" step="0.01" min="0" id="Cost" name="Cost" placeholder="0.00" class="w-full pl-8 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                    </div>
+                </div>
+
+                <!-- Selling Price -->
+                <div>
+                    <label for="Price" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 font-display">Selling Price ($) <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 text-sm">$</span>
+                        <input type="number" step="0.01" min="0" id="Price" name="Price" required placeholder="29.99" class="w-full pl-8 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thumbnail Upload -->
+            <div class="space-y-2 pt-2">
+                <label for="thumbnail" class="block text-xs font-bold text-slate-300 uppercase tracking-wider font-display">Primary Thumbnail <span class="text-rose-500">*</span></label>
+                <input type="file" id="thumbnail" name="thumbnail" required accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600/20 file:text-indigo-400 hover:file:bg-indigo-600/30 file:cursor-pointer cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                <p class="text-[11px] text-slate-500">Supports PNG, JPG, JPEG, WEBP or GIF.</p>
+            </div>
+
+            <!-- ProductImage Gallery -->
+            <div class="space-y-2 pt-2">
+                <label for="gallery_images" class="block text-xs font-bold text-slate-300 uppercase tracking-wider font-display">Product Gallery Images (ProductImage Model)</label>
+                <input type="file" id="gallery_images" name="gallery_images" multiple accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-600/20 file:text-purple-400 hover:file:bg-purple-600/30 file:cursor-pointer cursor-pointer bg-slate-950 border border-slate-800 rounded-xl p-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500/50">
+                <p class="text-[11px] text-slate-500">Select one or more photos to display in the product detail gallery.</p>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label for="description" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 font-display">Product Description</label>
+                <textarea id="description" name="description" rows="4" placeholder="Detailed product specifications, features, and dimensions..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"></textarea>
+            </div>
+
+            <!-- Actions -->
+            <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+                <a href="/admin/products" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs font-bold transition-all">Cancel</a>
+                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-indigo-600/20 hover:scale-[1.01] transition-all flex items-center gap-2 font-display">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>Publish Product</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

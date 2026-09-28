@@ -78,23 +78,28 @@
                 </p>
             </div>
             
-            <div class="relative z-10 w-full lg:w-auto shrink-0 flex flex-col sm:flex-row gap-4">
+            <form action="/shop" method="GET" class="relative z-10 w-full lg:w-auto shrink-0 flex flex-col sm:flex-row gap-4">
+                {% if active_category %}
+                <input type="hidden" name="category" value="{{ active_category }}">
+                {% endif %}
                 <!-- Search bar -->
                 <div class="relative flex-1 sm:flex-none">
-                    <input type="text" placeholder="Search products..." class="w-full sm:w-64 pl-10 pr-4 py-3.5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm transition-all duration-300 shadow-inner">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+                    <input type="text" name="q" value="{{ search_query or '' }}" placeholder="Search products..." class="w-full sm:w-64 pl-10 pr-4 py-3.5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm transition-all duration-300 shadow-inner">
+                    <button type="submit" class="absolute left-3 top-3.5 text-slate-400 hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
                 </div>
                 
                 <!-- Sort dropdown -->
-                <select class="px-4 py-3.5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm font-bold transition-all duration-300 cursor-pointer shadow-md font-display">
-                    <option class="text-slate-900">Sort by: Featured</option>
-                    <option class="text-slate-900">Price: Low to High</option>
-                    <option class="text-slate-900">Price: High to Low</option>
-                    <option class="text-slate-900">Top Rated</option>
+                <select name="sort" onchange="this.form.submit()" class="px-4 py-3.5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm font-bold transition-all duration-300 cursor-pointer shadow-md font-display">
+                    <option value="" class="text-slate-900" {% if not current_sort %}selected{% endif %}>Sort by: Featured</option>
+                    <option value="price_asc" class="text-slate-900" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" class="text-slate-900" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="newest" class="text-slate-900" {% if current_sort == 'newest' %}selected{% endif %}>Newest Arrival</option>
                 </select>
-            </div>
+            </form>
         </section>
 
         <div class="flex flex-col lg:flex-row gap-8">
@@ -110,27 +115,27 @@
                             </svg>
                             Filters
                         </h2>
-                        <button class="text-xs text-indigo-600 hover:text-indigo-850 font-bold transition-colors font-display">Clear All</button>
+                        <a href="/shop" class="text-xs text-indigo-600 hover:text-indigo-850 font-bold transition-colors font-display">Clear All</a>
                     </div>
                     
                     <!-- Categories -->
                     <div>
                         <h3 class="font-extrabold text-[10px] text-slate-400 uppercase tracking-wider mb-4 font-display">Categories</h3>
-                        <div class="space-y-3.5">
-                            {% for cat in ["Electronics", "Jewelery", "Men's Clothing", "Women's Clothing"] %}
-                            <label class="flex items-center gap-3 cursor-pointer group/cat">
-                                <div class="relative flex items-center justify-center">
-                                    <input type="checkbox" class="peer sr-only" {% if loop.first %}checked{% endif %}>
-                                    <div class="w-5 h-5 rounded-lg border border-slate-300 bg-white peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all duration-200 flex items-center justify-center shadow-inner">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white scale-0 peer-checked:scale-100 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <span class="text-sm font-bold text-slate-600 group-hover/cat:text-indigo-600 transition-colors duration-200">
-                                    {{ cat }}
+                        <div class="space-y-2">
+                            <a href="/shop{% if search_query %}?q={{ search_query }}{% endif %}" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all {% if not active_category or active_category|lower == 'all' %}bg-indigo-600 text-white shadow-md shadow-indigo-600/20{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-900{% endif %} font-display">
+                                <span>All Products</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full {% if not active_category or active_category|lower == 'all' %}bg-white/20 text-white{% else %}bg-slate-100 text-slate-500{% endif %}">
+                                    {{ products|length }}
                                 </span>
-                            </label>
+                            </a>
+                            {% for cat in categories %}
+                            {% set is_active = (active_category and (active_category|lower == cat.name|lower or active_category == cat.id|string)) %}
+                            <a href="/shop?category={{ cat.name|lower }}{% if search_query %}&q={{ search_query }}{% endif %}" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all {% if is_active %}bg-indigo-600 text-white shadow-md shadow-indigo-600/20{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-900{% endif %} font-display">
+                                <span>{{ cat.name }}</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full {% if is_active %}bg-white/20 text-white{% else %}bg-slate-100 text-slate-500{% endif %}">
+                                    {{ cat.products|length }}
+                                </span>
+                            </a>
                             {% endfor %}
                         </div>
                     </div>
@@ -267,6 +272,14 @@
                                 </a>
                             </div>
                         </div>
+                    </div>
+                    {% else %}
+                    <div class="col-span-full py-16 px-6 text-center bg-white/70 backdrop-blur-xl rounded-[32px] border border-slate-100 shadow-sm">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-900 font-display">No Products in Catalog</h3>
+                        <p class="text-sm text-slate-500 mt-1 max-w-sm mx-auto">There are no products listed yet. Products created in the admin portal will immediately appear here.</p>
                     </div>
                     {% endfor %}
 

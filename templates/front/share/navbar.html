@@ -1,8 +1,9 @@
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <nav class="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-xl shadow-sm shadow-slate-100/30">
     <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <!-- Logo -->
         <a href="/" class="text-2xl font-extrabold font-display tracking-tight bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent hover:opacity-900 transition-opacity">
-            PSPSTORE2026
+            PSPSTORE
         </a>
 
         <!-- Desktop Navigation links -->
@@ -10,11 +11,10 @@
             <a href="/" class="nav-link text-sm font-semibold tracking-wide transition-all duration-200 text-slate-500 hover:text-indigo-600" data-path="/">Home</a>
             <a href="/shop" class="nav-link text-sm font-semibold tracking-wide transition-all duration-200 text-slate-500 hover:text-indigo-600" data-path="/shop">Store</a>
             <a href="/account" class="nav-link text-sm font-semibold tracking-wide transition-all duration-200 text-slate-500 hover:text-indigo-600" data-path="/account">Account</a>
-            <a href="/admin" class="nav-link text-sm font-semibold tracking-wide transition-all duration-200 text-slate-500 hover:text-indigo-600" data-path="/admin">Admin Portal</a>
         </div>
 
         <!-- Utilities -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
             <a href="/cart" class="relative flex items-center gap-2 px-3 py-2 rounded-xl text-slate-800 hover:bg-slate-50 hover:text-indigo-600 transition-all duration-300 group">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:scale-105 transition-transform duration-300">
                     <circle cx="9" cy="21" r="1"></circle>
@@ -26,6 +26,29 @@
                 <span class="absolute -top-1.5 -right-1 bg-rose-500 ring-2 ring-white text-[9px] font-extrabold h-5 w-5 rounded-full flex items-center justify-center text-white shadow-sm shadow-rose-500/20">{{ cart_count }}</span>
                 {% endif %}
             </a>
+
+            {% if session.get('user_id') %}
+            <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+                <a href="/account" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 transition-all text-xs font-bold font-display" title="My Account">
+                    {% if session.get('user_image') %}
+                    <img src="{{ session.get('user_image') }}" class="w-6 h-6 rounded-full object-cover border border-indigo-200" alt="Avatar">
+                    {% else %}
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center text-[10px] font-black uppercase">
+                        {{ (session.get('username') or 'U')[:1] }}
+                    </div>
+                    {% endif %}
+                    <span class="hidden md:inline max-w-[100px] truncate">{{ session.get('username') or 'Account' }}</span>
+                </a>
+                <a href="/logout" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all" title="Sign Out">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                </a>
+            </div>
+            {% else %}
+            <a href="/login" class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-bold tracking-wide transition-all shadow-md shadow-indigo-600/20 font-display">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                <span>Sign In</span>
+            </a>
+            {% endif %}
         </div>
     </div>
 

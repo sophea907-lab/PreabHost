@@ -67,6 +67,7 @@
         </div>
 
         <form method="POST" action="/checkout" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
             <!-- Left Column: Checkout wizard steps -->
             <div class="lg:col-span-2 space-y-8">
@@ -92,6 +93,17 @@
                             </div>
                         </div>
                         
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 font-display" for="email">Email Address</label>
+                                <input type="email" id="email" name="email" value="{{ session.get('user_email', '') }}" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-medium text-slate-800 transition-all placeholder-slate-400 shadow-inner" placeholder="john.doe@example.com" required>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 font-display" for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-medium text-slate-800 transition-all placeholder-slate-400 shadow-inner" placeholder="+1 (555) 000-0000" required>
+                            </div>
+                        </div>
+
                         <div>
                             <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 font-display" for="address">Delivery Address</label>
                             <input type="text" id="address" name="address" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-medium text-slate-800 transition-all placeholder-slate-400 shadow-inner" placeholder="123 Luxury Avenue, Apt 4B" required>

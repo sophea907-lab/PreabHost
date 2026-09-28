@@ -3,24 +3,294 @@
 {% block content %}
 <!-- ================= ORDER CENTER TAB ================= -->
 <div id="tab-orders" class="tab-content space-y-6">
-    <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
+
+    <!-- Top Toolbar Area -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-cardBg border border-cardBorder p-4 rounded-2xl">
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+            <div class="relative w-full max-w-sm">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 pointer-events-none">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                </span>
+                <input type="text" id="orderSearch" oninput="filterOrders()" class="w-full pl-10 pr-4 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="Search orders by customer, email or ID...">
+            </div>
+            <select id="orderStatusFilter" onchange="filterOrders()" class="px-4 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-400 focus:outline-none">
+                <option value="ALL">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-400 font-bold px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Realtime Sync</span>
+        </div>
+    </div>
+
+    <!-- Orders Metric Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Total Orders -->
+        <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display">Total Orders</p>
+                <p class="text-2xl font-black text-slate-100 font-display">{{ orders|length }}</p>
+            </div>
+        </div>
+
+        <!-- Pending Orders -->
+        <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                <i data-lucide="clock" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display">Pending Orders</p>
+                <p class="text-2xl font-black text-amber-400 font-display">
+                    {% set pending_count = namespace(count=0) %}
+                    {% for o in orders %}
+                        {% if (o.status or '').lower() == 'pending' %}
+                            {% set pending_count.count = pending_count.count + 1 %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ pending_count.count }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Completed Orders -->
+        <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <i data-lucide="check-circle" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display">Delivered Orders</p>
+                <p class="text-2xl font-black text-emerald-400 font-display">
+                    {% set delivered_count = namespace(count=0) %}
+                    {% for o in orders %}
+                        {% if (o.status or '').lower() == 'delivered' %}
+                            {% set delivered_count.count = delivered_count.count + 1 %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ delivered_count.count }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Gross Revenue -->
+        <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display">Total Sales</p>
+                <p class="text-2xl font-black text-slate-100 font-display">
+                    {% set revenue_sum = namespace(val=0.0) %}
+                    {% for o in orders %}
+                        {% if (o.status or '').lower() != 'cancelled' %}
+                            {% set revenue_sum.val = revenue_sum.val + (o.total|float or 0.0) %}
+                        {% endif %}
+                    {% endfor %}
+                    ${{ "{:,.2f}".format(revenue_sum.val) }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table List -->
+    <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl shadow-black/10">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse">
                 <thead>
                     <tr class="bg-slate-950/45 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
-                        <th class="py-4 px-6 w-16">ID</th>
-                        <th class="py-4 px-6">Buyer Details</th>
-                        <th class="py-4 px-6">Delivery Destination</th>
-                        <th class="py-4 px-6">Purchased Items</th>
-                        <th class="py-4 px-6">Financials</th>
-                        <th class="py-4 px-6 w-36">Status Controls</th>
+                        <th class="py-4 px-6 w-20">ID</th>
+                        <th class="py-4 px-6">BUYER DETAILS</th>
+                        <th class="py-4 px-6">DELIVERY DESTINATION</th>
+                        <th class="py-4 px-6">PURCHASED ITEMS</th>
+                        <th class="py-4 px-6">FINANCIALS</th>
+                        <th class="py-4 px-6 w-52 text-center">STATUS CONTROLS</th>
                     </tr>
                 </thead>
                 <tbody id="ordersTableBody" class="divide-y divide-slate-800/40 text-slate-300">
-                    <!-- Rendered via JS -->
+                    {% for order in orders %}
+                    <tr class="order-row hover:bg-slate-900/10 transition-colors" data-id="{{ order.id }}" data-buyer="{{ (order.customer_name or '') | lower }}" data-email="{{ (order.email or '') | lower }}" data-status="{{ (order.status or '') | lower }}">
+                        <!-- ID -->
+                        <td class="py-4 px-6 align-top">
+                            <span class="font-bold font-display text-indigo-400 text-sm block">#{{ order.id }}</span>
+                            <span class="text-[10px] text-slate-500 block mt-1">
+                                {{ order.created_at.strftime('%b %d, %Y') if order.created_at else '' }}
+                            </span>
+                            <span class="text-[9px] text-slate-600 font-mono">
+                                {{ order.created_at.strftime('%H:%M') if order.created_at else '' }}
+                            </span>
+                        </td>
+
+                        <!-- Buyer Details -->
+                        <td class="py-4 px-6 align-top">
+                            <div class="space-y-1">
+                                <span class="font-bold text-slate-100 font-display text-sm block">{{ order.customer_name }}</span>
+                                <div class="flex items-center gap-1.5 text-slate-400 text-[11px]">
+                                    <i data-lucide="mail" class="w-3 h-3 text-slate-500 shrink-0"></i>
+                                    <span class="truncate max-w-[180px]">{{ order.email }}</span>
+                                </div>
+                                {% if order.phone %}
+                                <div class="flex items-center gap-1.5 text-slate-400 text-[11px]">
+                                    <i data-lucide="phone" class="w-3 h-3 text-slate-500 shrink-0"></i>
+                                    <span>{{ order.phone }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Delivery Destination -->
+                        <td class="py-4 px-6 align-top max-w-[200px]">
+                            <div class="space-y-1">
+                                <div class="flex items-start gap-1.5 text-slate-300 font-medium">
+                                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5"></i>
+                                    <span class="leading-relaxed">{{ order.address }}</span>
+                                </div>
+                                <div class="pl-5 flex items-center gap-2">
+                                    <span class="text-[11px] text-slate-400 font-semibold">{{ order.city }}</span>
+                                    {% if order.zip_code %}
+                                    <span class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-slate-400 font-mono">{{ order.zip_code }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Purchased Items -->
+                        <td class="py-4 px-6 align-top">
+                            <div class="space-y-2 max-w-xs">
+                                {% for item in order.items %}
+                                <div class="flex items-center gap-3 p-1.5 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                                    {% if item.thumbnail %}
+                                    <img src="{{ item.thumbnail }}" alt="{{ item.product_name }}" class="w-9 h-9 rounded-lg object-contain bg-white p-0.5 border border-slate-700 shrink-0">
+                                    {% else %}
+                                    <div class="w-9 h-9 rounded-lg bg-slate-900 border border-slate-800 text-slate-500 flex items-center justify-center shrink-0">
+                                        <i data-lucide="package" class="w-4 h-4"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div class="min-w-0 flex-1">
+                                        <span class="font-bold text-slate-200 block truncate text-[11px] font-display" title="{{ item.product_name }}">{{ item.product_name }}</span>
+                                        <span class="text-[10px] text-slate-400 font-mono">
+                                            {{ item.quantity }}x &bull; ${{ "{:.2f}".format(item.price or 0.0) }}
+                                        </span>
+                                    </div>
+                                    <span class="text-[11px] font-bold text-slate-300 font-mono pr-1.5 shrink-0">
+                                        ${{ "{:.2f}".format((item.price or 0.0) * (item.quantity or 1)) }}
+                                    </span>
+                                </div>
+                                {% else %}
+                                <span class="text-slate-500 italic">No line items recorded</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+
+                        <!-- Financials -->
+                        <td class="py-4 px-6 align-top">
+                            <div class="space-y-1">
+                                <span class="text-base font-black text-emerald-400 font-mono block">
+                                    ${{ "{:.2f}".format(order.total or 0.0) }}
+                                </span>
+                                <div class="text-[10px] text-slate-500 space-y-0.5 font-mono">
+                                    <div>Subtotal: ${{ "{:.2f}".format(order.subtotal or 0.0) }}</div>
+                                    <div>Shipping: ${{ "{:.2f}".format(order.shipping or 0.0) }}</div>
+                                    <div>Tax: ${{ "{:.2f}".format(order.tax or 0.0) }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Status Controls -->
+                        <td class="py-4 px-6 align-top">
+                            <div class="flex flex-col gap-2.5 items-center">
+                                <!-- Status Badge -->
+                                {% if (order.status or '').lower() == 'pending' %}
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20 inline-flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                                    Pending
+                                </span>
+                                {% elif (order.status or '').lower() == 'processing' %}
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 inline-flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                                    Processing
+                                </span>
+                                {% elif (order.status or '').lower() == 'delivered' %}
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    Delivered
+                                </span>
+                                {% elif (order.status or '').lower() == 'cancelled' %}
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/10 text-rose-400 border border-rose-500/20 inline-flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                                    Cancelled
+                                </span>
+                                {% else %}
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-800 text-slate-400 border border-slate-700">
+                                    {{ order.status }}
+                                </span>
+                                {% endif %}
+
+                                <!-- Status Changer Form -->
+                                <form action="/admin/orders/status/{{ order.id }}" method="POST" class="w-full">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <select name="status" onchange="this.form.submit()" class="w-full py-1.5 px-2.5 text-[11px] rounded-xl bg-slate-950 border border-slate-800 text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer">
+                                        <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Set: Pending</option>
+                                        <option value="Processing" {% if order.status == 'Processing' %}selected{% endif %}>Set: Processing</option>
+                                        <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Set: Delivered</option>
+                                        <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Set: Cancelled</option>
+                                    </select>
+                                </form>
+
+                                <!-- Delete Action -->
+                                <form action="/admin/orders/delete/{{ order.id }}" method="POST" onsubmit="return confirm('Delete order #{{ order.id }}?');" class="mt-0.5">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="px-3 py-1 text-[10px] text-rose-400 hover:text-white hover:bg-rose-600/30 rounded-lg border border-rose-500/20 transition-all flex items-center gap-1 font-semibold" title="Delete Order">
+                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        <span>Delete Order</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="py-16 text-center">
+                            <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="inbox" class="w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-slate-200 font-display">No Orders Received Yet</h3>
+                            <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1">When customers place orders from the storefront, they will be tracked and displayed here in real-time.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+    function filterOrders() {
+        const query = document.getElementById('orderSearch').value.toLowerCase().trim();
+        const statusFilter = document.getElementById('orderStatusFilter').value.toLowerCase();
+        const rows = document.querySelectorAll('.order-row');
+
+        rows.forEach(row => {
+            const id = row.getAttribute('data-id') || '';
+            const buyer = row.getAttribute('data-buyer') || '';
+            const email = row.getAttribute('data-email') || '';
+            const status = row.getAttribute('data-status') || '';
+
+            const matchesSearch = id.includes(query) || buyer.includes(query) || email.includes(query);
+            const matchesStatus = (statusFilter === 'all') || (status === statusFilter);
+
+            if (matchesSearch && matchesStatus) {
+                row.classList.remove('hidden');
+            } else {
+                row.classList.add('hidden');
+            }
+        });
+    }
+</script>
 {% endblock %}

@@ -1,5 +1,5 @@
 {% extends 'admin/master.html' %}
-
+ 
 {% block content %}
 <!-- ================= OVERVIEW TAB ================= -->
 <div id="tab-dashboard" class="tab-content space-y-8">
@@ -10,7 +10,7 @@
             <div class="absolute -top-6 -right-6 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
             <div class="space-y-2">
                 <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Completed Sales</span>
-                <span id="stat-revenue" class="text-2xl font-black text-slate-100 font-display tracking-tight">$0.00</span>
+                <span id="stat-revenue" class="text-2xl font-black text-slate-100 font-display tracking-tight">${{ "{:,.2f}".format(completed_sales) }}</span>
             </div>
             <div class="w-12 h-12 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center shadow-inner">
                 <i data-lucide="banknote" class="w-6 h-6"></i>
@@ -21,7 +21,7 @@
             <div class="absolute -top-6 -right-6 w-24 h-24 bg-purple-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
             <div class="space-y-2">
                 <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Active Orders</span>
-                <span id="stat-active-orders" class="text-2xl font-black text-slate-100 font-display tracking-tight">0</span>
+                <span id="stat-active-orders" class="text-2xl font-black text-slate-100 font-display tracking-tight">{{ active_orders }}</span>
             </div>
             <div class="w-12 h-12 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center shadow-inner">
                 <i data-lucide="clock" class="w-6 h-6"></i>
@@ -32,7 +32,7 @@
             <div class="absolute -top-6 -right-6 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
             <div class="space-y-2">
                 <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Products Stock</span>
-                <span id="stat-products" class="text-2xl font-black text-slate-100 font-display tracking-tight">0</span>
+                <span id="stat-products" class="text-2xl font-black text-slate-100 font-display tracking-tight">{{ total_stock }}</span>
             </div>
             <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shadow-inner">
                 <i data-lucide="package" class="w-6 h-6"></i>
@@ -43,7 +43,7 @@
             <div class="absolute -top-6 -right-6 w-24 h-24 bg-rose-500/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
             <div class="space-y-2">
                 <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block font-display">Avg Catalog Rating</span>
-                <span id="stat-rating" class="text-2xl font-black text-slate-100 font-display tracking-tight flex items-center gap-1.5">0.0 <span class="text-xs text-amber-500">★</span></span>
+                <span id="stat-rating" class="text-2xl font-black text-slate-100 font-display tracking-tight flex items-center gap-1.5">{{ avg_rating }} <span class="text-xs text-amber-500">★</span></span>
             </div>
             <div class="w-12 h-12 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl flex items-center justify-center shadow-inner">
                 <i data-lucide="award" class="w-6 h-6"></i>
@@ -62,7 +62,7 @@
                 </div>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 uppercase tracking-wider border border-indigo-500/20">Line Chart</span>
             </div>
-            <div class="h-80 w-full relative">
+            <div class="h-72 w-full relative">
                 <canvas id="salesTimelineChart"></canvas>
             </div>
         </div>
@@ -75,7 +75,7 @@
                 </div>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 uppercase tracking-wider border border-purple-500/20">Doughnut</span>
             </div>
-            <div class="h-80 w-full relative flex items-center justify-center">
+            <div class="h-72 w-full relative flex items-center justify-center">
                 <canvas id="categoryDistributionChart"></canvas>
             </div>
         </div>
@@ -103,10 +103,201 @@
                     </tr>
                 </thead>
                 <tbody id="recentOrdersTableBody" class="divide-y divide-slate-800/40 text-slate-300">
-                    <!-- Rendered via Javascript -->
+                    {% if recent_orders %}
+                        {% for ord in recent_orders %}
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="py-3.5 px-4 font-bold text-slate-200">
+                                #ORD-{{ "%04d"|format(ord.id) }}
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <div class="font-semibold text-slate-200">{{ ord.customer_name }}</div>
+                                <div class="text-[10px] text-slate-500">{{ ord.email }}</div>
+                            </td>
+                            <td class="py-3.5 px-4 text-slate-400">
+                                {{ ord.created_at.strftime('%b %d, %Y') if ord.created_at else 'Recent' }}
+                            </td>
+                            <td class="py-3.5 px-4 font-bold text-emerald-400">
+                                ${{ "{:,.2f}".format(ord.total or 0.0) }}
+                            </td>
+                            <td class="py-3.5 px-4 text-slate-300">
+                                <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 font-medium text-[11px]">
+                                    {{ ord.items|length }} {{ 'item' if ord.items|length == 1 else 'items' }}
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4">
+                                {% if ord.status == 'Delivered' %}
+                                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Delivered
+                                    </span>
+                                {% elif ord.status == 'Processing' %}
+                                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 inline-flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span> Processing
+                                    </span>
+                                {% elif ord.status == 'Cancelled' %}
+                                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 inline-flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Cancelled
+                                    </span>
+                                {% else %}
+                                    <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 inline-flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="py-10 text-center text-slate-500">
+                                <div class="flex flex-col items-center justify-center gap-2">
+                                    <i data-lucide="inbox" class="w-8 h-8 text-slate-600"></i>
+                                    <span>No orders recorded yet.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const timelineLabels = {{ timeline_labels|tojson }};
+    const timelineValues = {{ timeline_values|tojson }};
+    const catLabels = {{ cat_labels|tojson }};
+    const catCounts = {{ cat_counts|tojson }};
+
+    // 1. Sales Revenue Performance (Line Chart)
+    const timelineCanvas = document.getElementById('salesTimelineChart');
+    if (timelineCanvas) {
+        const timelineCtx = timelineCanvas.getContext('2d');
+        const purpleGradient = timelineCtx.createLinearGradient(0, 0, 0, 300);
+        purpleGradient.addColorStop(0, 'rgba(99, 102, 241, 0.35)');
+        purpleGradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+        new Chart(timelineCtx, {
+            type: 'line',
+            data: {
+                labels: timelineLabels,
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: timelineValues,
+                    borderColor: '#6366f1',
+                    borderWidth: 3,
+                    backgroundColor: purpleGradient,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#a855f7',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#111827',
+                        borderColor: '#374151',
+                        borderWidth: 1,
+                        padding: 10,
+                        titleColor: '#e2e8f0',
+                        bodyColor: '#a5b4fc',
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return ' Revenue: $' + Number(context.parsed.y).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(31, 41, 55, 0.6)' },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: { size: 10 },
+                            callback: function(value) { return '$' + Number(value).toLocaleString(); }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { size: 10 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Stock Category Mix (Doughnut Chart)
+    const doughnutCanvas = document.getElementById('categoryDistributionChart');
+    if (doughnutCanvas) {
+        const doughnutCtx = doughnutCanvas.getContext('2d');
+        const bgColors = [
+            'rgba(99, 102, 241, 0.85)',
+            'rgba(168, 85, 247, 0.85)',
+            'rgba(244, 63, 94, 0.85)',
+            'rgba(16, 185, 129, 0.85)',
+            'rgba(245, 158, 11, 0.85)',
+            'rgba(6, 182, 212, 0.85)'
+        ];
+
+        new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    data: catCounts,
+                    backgroundColor: bgColors.slice(0, catLabels.length),
+                    borderColor: '#111827',
+                    borderWidth: 3,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#94a3b8',
+                            boxWidth: 10,
+                            boxHeight: 10,
+                            padding: 12,
+                            font: { size: 10 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#111827',
+                        borderColor: '#374151',
+                        borderWidth: 1,
+                        padding: 10,
+                        titleColor: '#e2e8f0',
+                        bodyColor: '#c084fc',
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0) || 1;
+                                const val = context.parsed;
+                                const pct = ((val / total) * 100).toFixed(0);
+                                return ` ${context.label}: ${val} products (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>
 {% endblock %}

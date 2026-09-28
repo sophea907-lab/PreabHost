@@ -1,0 +1,139 @@
+{% extends 'admin/master.html' %}
+
+{% block content %}
+<!-- ================= CATEGORIES DIRECTORY TAB ================= -->
+<div id="tab-categories" class="tab-content space-y-6">
+
+    <!-- Top Toolbar Area -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-cardBg border border-cardBorder p-4 rounded-2xl">
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+            <div class="relative w-full max-w-sm">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 pointer-events-none">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                </span>
+                <input type="text" id="categorySearch" oninput="filterCategories()" class="w-full pl-10 pr-4 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/50" placeholder="Search categories by name...">
+            </div>
+        </div>
+        <a href="/admin/categories/create" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-indigo-600/20 hover:scale-[1.01] transition-all flex items-center gap-1.5 self-start sm:self-auto font-display">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Add New Category</span>
+        </a>
+    </div>
+
+    <!-- Category Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                <i data-lucide="folder" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display">Total Categories</p>
+                <p class="text-2xl font-black text-slate-100 font-display">{{ categories|length }}</p>
+            </div>
+        </div>
+        <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                <i data-lucide="layers" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display">Linked Products</p>
+                <p class="text-2xl font-black text-slate-100 font-display">
+                    {% set total_linked = namespace(count=0) %}
+                    {% for c in categories %}
+                        {% set total_linked.count = total_linked.count + (c.products|length) %}
+                    {% endfor %}
+                    {{ total_linked.count }}
+                </p>
+            </div>
+        </div>
+        <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <i data-lucide="check-circle" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display">Active Status</p>
+                <p class="text-2xl font-black text-emerald-400 font-display">100% Ready</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Table list -->
+    <div class="bg-cardBg border border-cardBorder rounded-2xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-slate-950/45 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+                        <th class="py-3.5 px-6 w-16">Id</th>
+                        <th class="py-3.5 px-6 w-20">Banner</th>
+                        <th class="py-3.5 px-6">Category Name</th>
+                        <th class="py-3.5 px-6">Description</th>
+                        <th class="py-3.5 px-6 text-center w-28">Products</th>
+                        <th class="py-3.5 px-6 text-center w-28">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="categoriesTableBody" class="divide-y divide-slate-800/40 text-slate-300">
+                    {% for cat in categories %}
+                    <tr class="category-row hover:bg-slate-900/10 transition-colors" data-name="{{ (cat.name or '') | lower }}">
+                        <td class="py-4 px-6 font-bold font-display text-slate-500">#{{ cat.id }}</td>
+                        <td class="py-4 px-6">
+                            {% if cat.image %}
+                            <img src="{{ cat.image }}" class="w-12 h-12 rounded-xl object-cover border border-slate-800 shadow-md shadow-indigo-500/10" alt="{{ cat.name }}">
+                            {% else %}
+                            <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 text-slate-500 flex items-center justify-center">
+                                <i data-lucide="image" class="w-5 h-5"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="font-bold text-slate-100 font-display text-sm block">{{ cat.name }}</span>
+                            <span class="text-[10px] text-slate-500 font-mono">ID: {{ cat.id }}</span>
+                        </td>
+                        <td class="py-4 px-6 text-slate-400 max-w-xs truncate">
+                            {{ cat.description or 'No description provided.' }}
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                                {{ cat.products|length }} items
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <a href="/admin/categories/edit/{{ cat.id }}" class="p-2 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 rounded-xl transition-all" title="Edit Category">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </a>
+                                <form action="/admin/categories/delete/{{ cat.id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete category {{ cat.name }}? This will also affect linked products!');" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition-all" title="Delete Category">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-slate-500 font-medium">No categories found. Click "Add New Category" to create one.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterCategories() {
+        const query = document.getElementById('categorySearch').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('.category-row');
+
+        rows.forEach(row => {
+            const name = row.getAttribute('data-name');
+            if (name.includes(query)) {
+                row.classList.remove('hidden');
+            } else {
+                row.classList.add('hidden');
+            }
+        });
+    }
+</script>
+{% endblock %}

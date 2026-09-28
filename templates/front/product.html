@@ -66,13 +66,51 @@
         <div class="bg-white/80 backdrop-blur-2xl rounded-[40px] p-6 md:p-10 border border-slate-100/80 shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-12 mt-4 relative overflow-hidden">
             
             <!-- Left Side: Immersive Image Container (5 cols) -->
-            <div class="lg:col-span-5 flex items-center justify-center bg-white border border-slate-100 rounded-[32px] p-8 md:p-12 relative group h-[400px] lg:h-[520px] shadow-inner">
-                <!-- Floating category label -->
-                <span class="absolute top-4 left-4 px-3 py-1 text-[9px] font-extrabold uppercase tracking-widest bg-slate-950 text-white rounded-lg font-display shadow-md shadow-slate-950/10">
-                    {{ product.category }}
-                </span>
-                
-                <img src="{{ product.image }}" alt="{{ product.title }}" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500 p-4 drop-shadow-[0_15px_30px_rgba(0,0,0,0.05)]">
+            <div class="lg:col-span-5 flex flex-col gap-4">
+                <div class="flex items-center justify-center bg-white border border-slate-100 rounded-[32px] p-8 md:p-12 relative group h-[380px] lg:h-[460px] shadow-inner">
+                    <!-- Floating category label -->
+                    <span class="absolute top-4 left-4 px-3 py-1 text-[9px] font-extrabold uppercase tracking-widest bg-slate-950 text-white rounded-lg font-display shadow-md shadow-slate-950/10">
+                        {{ product.category.name if product.category else product.category }}
+                    </span>
+                    
+                    <img id="mainImageDisplay" src="{{ product.image }}" alt="{{ product.title }}" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-all duration-300 p-4 drop-shadow-[0_15px_30px_rgba(0,0,0,0.05)]">
+                </div>
+
+                <!-- Product Gallery Thumbnails (ProductImage model) -->
+                {% if product.images and product.images|length > 0 %}
+                <div class="flex items-center gap-3 overflow-x-auto py-1 px-1">
+                    <button type="button" onclick="swapMainImage('{{ product.image }}', this)" class="gallery-thumb-btn w-16 h-16 rounded-2xl bg-white border-2 border-indigo-600 p-1.5 shrink-0 overflow-hidden hover:scale-105 transition-all shadow-sm">
+                        <img src="{{ product.image }}" class="w-full h-full object-contain">
+                    </button>
+                    {% for g_img in product.images %}
+                    {% if g_img.name != product.image %}
+                    <button type="button" onclick="swapMainImage('{{ g_img.name }}', this)" class="gallery-thumb-btn w-16 h-16 rounded-2xl bg-white border border-slate-200 hover:border-indigo-600 p-1.5 shrink-0 overflow-hidden hover:scale-105 transition-all shadow-sm">
+                        <img src="{{ g_img.name }}" class="w-full h-full object-contain">
+                    </button>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <script>
+                    function swapMainImage(src, btn) {
+                        const img = document.getElementById('mainImageDisplay');
+                        if (img) {
+                            img.style.opacity = '0';
+                            setTimeout(() => {
+                                img.src = src;
+                                img.style.opacity = '1';
+                            }, 150);
+                        }
+                        document.querySelectorAll('.gallery-thumb-btn').forEach(b => {
+                            b.classList.remove('border-indigo-600', 'border-2');
+                            b.classList.add('border-slate-200');
+                        });
+                        if (btn) {
+                            btn.classList.remove('border-slate-200');
+                            btn.classList.add('border-indigo-600', 'border-2');
+                        }
+                    }
+                </script>
+                {% endif %}
             </div>
 
             <!-- Right Side: Details Sheet (7 cols) -->
