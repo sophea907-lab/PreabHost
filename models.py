@@ -36,7 +36,6 @@ class User(db.Model):
             "update_at": self.update_at.isoformat() if self.update_at else None,
         }
 
-
 class Category(db.Model):
     __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True)
@@ -54,7 +53,6 @@ class Category(db.Model):
             "description": self.description,
             "products_count": len(self.products) if self.products else 0
         }
-
 
 class Product(db.Model):
     __tablename__ = 'product'
@@ -166,7 +164,6 @@ class Product(db.Model):
             "images": [img.name for img in self.images] if self.images else []
         }
 
-
 class ProductImage(db.Model):
     __tablename__ = 'product_image'
     id = db.Column(db.Integer, primary_key=True)
@@ -187,7 +184,6 @@ class ProductImage(db.Model):
             "ProductId": self.ProductId,
             "name": self.name
         }
-
 
 class Order(db.Model):
     __tablename__ = 'order'
@@ -227,7 +223,6 @@ class Order(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "items": [item.to_dict() for item in self.items]
         }
-
 
 class OrderItem(db.Model):
     __tablename__ = 'order_item'
